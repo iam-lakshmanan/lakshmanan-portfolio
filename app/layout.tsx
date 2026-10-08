@@ -6,11 +6,11 @@ const geist = Geist({ variable: "--font-geist", subsets: ["latin"] });
 const mono = Geist_Mono({ variable: "--font-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Lakshmanan | Full Stack Developer",
-  description: "Full Stack Developer building web and IoT applications with React, Next.js, Node.js, PostgreSQL, AWS and DevOps technologies.",
+  title: "Lakshmanan A | Full Stack Developer, AWS & DevOps",
+  description: "Full Stack Developer building production web, e-commerce, IoT, and location-based applications with React, Next.js, Node.js, PostgreSQL, AWS, DigitalOcean, Docker, and DevOps technologies.",
   openGraph: {
-    title: "Lakshmanan | Full Stack Developer",
-    description: "Building real-world web and IoT applications from code to production.",
+    title: "Lakshmanan A | Full Stack Developer, AWS & DevOps",
+    description: "Production-focused full-stack engineering across web, IoT, cloud deployment, and DevOps.",
     type: "website",
   },
 };
