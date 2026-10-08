@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { ArrowRight, Box, Braces, Cloud, Code2, ExternalLink, Mail, Menu, Radio, Rocket, Server, TestTube2, X } from "lucide-react";
+import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type MouseEvent } from "react";
+import { AnimatePresence, motion, useInView, useScroll } from "framer-motion";
+import { Box, Braces, Cloud, Code2, Mail, Menu, Radio, Rocket, Server, TestTube2, X } from "lucide-react";
+import { ProjectCard } from "./ProjectCard";
+import { Reveal, SiteMotion, useSiteMotion } from "./SiteMotion";
 
 const Github = Code2;
 const Linkedin = Braces;
@@ -17,11 +19,11 @@ const skillGroups = {
   "Tools & Integrations":["Git","Postman","Cloudinary","Firebase","Google Maps APIs","OpenAI Codex","Claude"],
 };
 const projects = [
-  {name:"Fingerprint Smart Lock",desc:"Enhanced an existing smart-lock application with a responsive Next.js interface, completed the live user workflow, and developed a dedicated admin panel.",tech:["Next.js","TypeScript","Node.js","MySQL","MQTT"],mark:"IoT platform",live:"https://lockuser.magnic.in/"},
-  {name:"GymHack",desc:"Built and deployed a full-stack e-commerce website with integrated storefront, backend, and admin panel using a containerized deployment workflow.",tech:["Next.js","Node.js","Cloudinary","Docker","Docker Compose"],mark:"E-commerce + containers",live:"https://gymhack.in/"},
-  {name:"KGF Lottery Agency",desc:"Developed a lottery results and promotions platform with an admin panel for content management and cloud object storage for files.",tech:["Next.js","Tailwind CSS","Node.js","DigitalOcean Spaces"],mark:"Content platform",live:"https://kgflottery.com"},
-  {name:"PurpleDropTaxi",desc:"Created a responsive taxi-booking platform with location autocomplete, fare estimates, route maps, Telegram enquiries, and PWA support.",tech:["Next.js","Google Maps APIs","Telegram Bot API","PWA","Hostinger"],mark:"Booking + location",live:"https://purpledroptaxi.com/"},
-  {name:"Mangal and Mangal E-commerce",desc:"Collaborated on a full-stack store with product management, reviews, regional shipping logic, and an administration dashboard.",tech:["Next.js","Node.js","PostgreSQL","Tailwind CSS"],mark:"Team-built commerce",live:"https://stores.mangalandmangal.com/"},
+  {name:"Fingerprint Smart Lock",desc:"Improved an existing smart-lock app with a responsive interface, complete user workflow, and dedicated admin panel.",tech:["Next.js","TypeScript","Node.js","MySQL","MQTT"],mark:"IoT platform",live:"https://lockuser.magnic.in/"},
+  {name:"GymHack",desc:"Built an integrated storefront, backend, and admin panel, with Docker-based deployment.",tech:["Next.js","Node.js","Cloudinary","Docker","Docker Compose"],mark:"E-commerce + containers",live:"https://gymhack.in/"},
+  {name:"KGF Lottery Agency",desc:"Built a results and promotions platform with admin publishing tools and cloud file storage.",tech:["Next.js","Tailwind CSS","Node.js","DigitalOcean Spaces"],mark:"Content platform",live:"https://kgflottery.com"},
+  {name:"PurpleDropTaxi",desc:"Built a taxi-booking PWA with location search, fare estimates, route maps, and Telegram enquiries.",tech:["Next.js","Google Maps APIs","Telegram Bot API","PWA","Hostinger"],mark:"Booking + location",live:"https://purpledroptaxi.com/"},
+  {name:"Mangal and Mangal E-commerce",desc:"Collaborated on a full-stack store with product management, reviews, regional shipping, and an admin dashboard.",tech:["Next.js","Node.js","PostgreSQL","Tailwind CSS"],mark:"Team-built commerce",live:"https://stores.mangalandmangal.com/"},
 ];
 const experiences = [
   {
@@ -41,41 +43,254 @@ const experiences = [
     tags:["Next.js","Express.js","DigitalOcean","Google Maps","PWA","SEO"],
   },
 ];
-const reveal = { initial:{opacity:0,y:22}, whileInView:{opacity:1,y:0}, viewport:{once:true,margin:"-80px"}, transition:{duration:.6} };
-function SectionHead({kicker,title,copy}:{kicker:string,title:string,copy?:string}) { return <motion.div {...reveal}><div className="eyebrow">{kicker}</div><h2 className="section-title">{title}</h2>{copy&&<p className="section-copy">{copy}</p>}</motion.div> }
 
-export function Portfolio(){
-  const [scrolled,setScrolled]=useState(false),[open,setOpen]=useState(false),[active,setActive]=useState("Home"),[more,setMore]=useState(false),[sent,setSent]=useState("");
-  useEffect(()=>{const run=()=>{setScrolled(scrollY>20); const current=nav.map(n=>document.getElementById(n.toLowerCase())).filter(Boolean).reverse().find(s=>(s as HTMLElement).getBoundingClientRect().top<=90); if(current)setActive((current as HTMLElement).id[0].toUpperCase()+(current as HTMLElement).id.slice(1))}; run();addEventListener("scroll",run,{passive:true});return()=>removeEventListener("scroll",run)},[]);
-  const scrollToSection=(event:React.MouseEvent<HTMLAnchorElement>,sectionId:string)=>{
+function SectionHead({ kicker, title, copy }: { kicker: string; title: string; copy?: string }) {
+  return <Reveal className="section-heading"><div className="eyebrow">{kicker}</div><h2 className="section-title">{title}</h2>{copy && <p className="section-copy">{copy}</p>}</Reveal>;
+}
+
+const aboutCards = [
+  { Icon: Code2, title: "7+ delivered projects", copy: "Client and production work across commerce, business, and booking platforms." },
+  { Icon: Radio, title: "Real-time systems", copy: "MQTT-powered IoT data, admin dashboards, and location-based experiences." },
+  { Icon: Rocket, title: "Production ownership", copy: "Docker, DigitalOcean, AWS, Nginx, PM2, domains, SSL, and maintenance." },
+];
+const devCards = [
+  { Icon: Cloud, title: "AWS", copy: "EC2 • S3 • RDS • IAM • VPC • CloudWatch" },
+  { Icon: Box, title: "Containers", copy: "Docker • Docker Compose • Deployment" },
+  { Icon: TestTube2, title: "Automation", copy: "GitHub Actions • Jenkins • Terraform • Ansible" },
+  { Icon: Server, title: "Operations", copy: "Linux • Nginx • PM2 • SSL • Monitoring" },
+];
+const credentials = [
+  { label: "2023 — 2025", title: "M.Sc. Statistics", copy: "PSG College of Arts and Science, Coimbatore", value: "76.6%" },
+  { label: "2020 — 2023", title: "B.Sc. Mathematics", copy: "Sri Ramakrishna Mission Vidyalaya College of Arts and Science, Coimbatore", value: "80.2%" },
+  { label: "Certification", title: "Full Stack Development", copy: "Credential PT/GP/MERN/153/2025", value: "MERN" },
+  { label: "Hands-on learning", title: "AWS Cloud Fundamentals", copy: "EC2, S3, RDS, IAM, VPC, and CloudWatch", value: "AWS" },
+];
+
+function DeploymentPipeline() {
+  const ref = useRef<HTMLOListElement>(null);
+  const inView = useInView(ref, { amount: 0.2 });
+  const { enabled } = useSiteMotion();
+  return (
+    <ol ref={ref} className="pipeline" data-running={inView && enabled} aria-label="Deployment workflow">
+      {["GitHub", "CI/CD", "Build & Test", "Docker", "AWS / DO", "Nginx", "Production"].map((label, index) => (
+        <li key={label} style={{ "--flow-delay": `${index * 0.65}s` } as CSSProperties}>
+          <Reveal delay={index * 0.05}><div className="pipe-node"><span className="pipe-number">{String(index + 1).padStart(2, "0")}</span><span>{label}</span></div></Reveal>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+export function Portfolio() {
+  return <SiteMotion><PortfolioContent /></SiteMotion>;
+}
+
+function PortfolioContent() {
+  const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState("Home");
+  const [sent, setSent] = useState("");
+  const headerRef = useRef<HTMLElement>(null);
+  const menuRef = useRef<HTMLButtonElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
+  const heroInView = useInView(heroRef, { amount: 0.1 });
+  const { enabled, systemReduced, toggle } = useSiteMotion();
+  const { scrollYProgress } = useScroll();
+
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      setScrolled(window.scrollY > 20);
+      const boundary = (headerRef.current?.querySelector(".navin")?.getBoundingClientRect().height ?? 76) + 24;
+      const current = [...nav].reverse().find(label => {
+        const section = document.getElementById(label.toLowerCase());
+        return section && section.getBoundingClientRect().top <= boundary;
+      });
+      if (current) setActive(current);
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { setOpen(false); menuRef.current?.focus(); }
+    };
+    const onOutside = (event: PointerEvent) => {
+      if (event.target instanceof Node && !headerRef.current?.contains(event.target)) setOpen(false);
+    };
+    const onResize = () => { if (window.innerWidth > 850) setOpen(false); };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onOutside);
+    window.addEventListener("resize", onResize);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onOutside);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [open]);
+
+  function scrollToSection(event: MouseEvent<HTMLAnchorElement>, sectionId: string) {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+    const target = document.getElementById(sectionId);
+    if (!target) return;
     event.preventDefault();
-    const target=document.getElementById(sectionId);
-    if(!target)return;
-    const navHeight=76;
-    const sectionTop=target.getBoundingClientRect().top+window.scrollY;
-    window.scrollTo({
-      top:Math.max(0,sectionTop-navHeight),
-      behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",
-    });
-    window.history.replaceState(null,"",`#${sectionId}`);
+    const navHeight = headerRef.current?.querySelector(".navin")?.getBoundingClientRect().height ?? 76;
+    const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - navHeight);
     setOpen(false);
-  };
-  const submit=(e:React.FormEvent<HTMLFormElement>)=>{e.preventDefault(); const f=new FormData(e.currentTarget); const subject=encodeURIComponent(`Portfolio enquiry from ${f.get("name")}`); const body=encodeURIComponent(`${f.get("message")}\n\nFrom: ${f.get("name")} (${f.get("email")})`); setSent("Opening your email app…"); location.href=`mailto:lakshmanan02731@gmail.com?subject=${subject}&body=${body}`};
+    target.focus({ preventScroll: true });
+    window.scrollTo({ top, behavior: enabled ? "smooth" : "instant" });
+    window.history.replaceState(null, "", `#${sectionId}`);
+  }
+
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const subject = encodeURIComponent(`Portfolio enquiry from ${form.get("name")}`);
+    const body = encodeURIComponent(`${form.get("message")}\n\nFrom: ${form.get("name")} (${form.get("email")})`);
+    setSent("Your email app will open with this message. Send it there to complete your enquiry.");
+    window.location.href = `mailto:lakshmanan02731@gmail.com?subject=${subject}&body=${body}`;
+  }
+
+  const links = (mobile = false) => nav.map(label => (
+    <a key={label} href={`#${label.toLowerCase()}`} className={active === label ? "active" : ""}
+      aria-current={active === label ? "location" : undefined}
+      onClick={event => scrollToSection(event, label.toLowerCase())}>
+      {label}
+      {!mobile && active === label && <motion.span className="nav-indicator" layoutId="nav-indicator" transition={{ duration: enabled ? 0.25 : 0 }} />}
+    </a>
+  ));
+
   return <>
-    <header className={`nav ${scrolled?"scrolled":""}`}><div className="wrap navin"><a href="#home" className="logo" aria-label="Home" onClick={event=>scrollToSection(event,"home")}>&lt;L /&gt;</a><nav className={`links ${open?"open":""}`} aria-label="Main navigation">{nav.map(n=>{const id=n.toLowerCase();return <a key={n} href={`#${id}`} className={active===n?"active":""} onClick={event=>scrollToSection(event,id)}>{n}</a>})}</nav><button className="menu" aria-label="Toggle navigation" onClick={()=>setOpen(!open)}>{open?<X/>:<Menu/>}</button></div></header>
-    <main>
-      <section id="home" className="hero"><div className="wrap hero-grid"><motion.div initial={{opacity:0,y:22}} animate={{opacity:1,y:0}} transition={{duration:.7}}><div className="status"><i/>Full Stack • Cloud • DevOps</div><h1>Hi, I&apos;m <span>Lakshmanan.</span></h1><div className="hero-sub">Full Stack Developer — AWS — Cloud-Native Engineering</div><p className="hero-copy">I build and maintain production web applications, e-commerce platforms, IoT systems, and location-based products with React, Next.js, Node.js, PostgreSQL, Docker, AWS, and DigitalOcean.</p><div className="actions"><a className="btn primary" href="#projects">View my work <ArrowRight size={16}/></a><a className="btn" href="#contact">Let&apos;s connect</a></div><div className="socials"><a className="iconbtn" href="https://github.com/iam-lakshmanan" target="_blank" rel="noreferrer" aria-label="GitHub"><Github size={18}/></a><a className="iconbtn" href="https://linkedin.com/in/iam-lakshmanan/" target="_blank" rel="noreferrer" aria-label="LinkedIn"><Linkedin size={18}/></a><a className="iconbtn" href="mailto:lakshmanan02731@gmail.com" aria-label="Email"><Mail size={18}/></a></div></motion.div><motion.div className="terminal card" initial={{opacity:0,x:25}} animate={{opacity:1,x:0}} transition={{delay:.25,duration:.7}}><div className="term-top"><i/><i/><i/></div><div className="flow">{["Product","REST APIs","Database","Docker","AWS / DigitalOcean","Production"].map((x,i)=><div key={x}><div className="flow-row"><span>0{i+1}</span>{x}</div>{i<5&&<div className="flow-line"/>}</div>)}</div></motion.div></div></section>
-      <section id="about" className="section"><div className="wrap"><SectionHead kicker="About" title="Full stack, from interface to infrastructure" copy="I’m a Full Stack Developer in Coimbatore with hands-on experience across business websites, e-commerce products, IoT platforms, and taxi-booking systems. My work covers responsive interfaces, REST APIs, database design, authentication, payments, third-party integrations, and production deployment. I’m strengthening that foundation with AWS, Docker, Linux, CI/CD, Nginx, and practical cloud-native engineering."/><div className="three">{[[Code2,"7+ delivered projects","Client and production work across commerce, business, and booking platforms."],[Radio,"Real-time systems","MQTT-powered IoT data, admin dashboards, and location-based experiences."],[Rocket,"Production ownership","Docker, DigitalOcean, AWS, Nginx, PM2, domains, SSL, and maintenance."]].map(([Icon,t,d],i)=><motion.article className="card mini" key={String(t)} {...reveal} transition={{delay:i*.08}}><Icon size={23}/><h3>{t as string}</h3><p>{d as string}</p></motion.article>)}</div></div></section>
-      <section id="skills" className="section"><div className="wrap"><SectionHead kicker="Toolkit" title="Technologies I work with" copy="A practical toolkit shaped by building across the browser, server, database, devices and deployment."/><div className="skills">{Object.entries(skillGroups).map(([group,items],i)=><motion.article className="card skill" key={group} {...reveal} transition={{delay:(i%3)*.06}}><h3>{group}</h3><div className="tags">{items.map(x=><span className="tag" key={x}>{x}</span>)}</div></motion.article>)}</div></div></section>
-      <section id="experience" className="section"><div className="wrap"><SectionHead kicker="Experience" title="Production work and client delivery" copy="Current roles across product engineering, IoT, freelance delivery, and cloud deployment."/><div className="experience-list">{experiences.map((item,index)=><motion.article className="card experience" key={item.company} {...reveal} transition={{delay:index*.08}}><div className="role-head"><div><h3>{item.role}</h3><div className="company">{item.company}</div></div><span className="tag">{item.period}</span></div><p className="section-copy">{item.summary}</p><ul className="responsibilities">{item.points.map(point=><li key={point}>{point}</li>)}</ul><div className="tags">{item.tags.map(tag=><span className="tag" key={tag}>{tag}</span>)}</div></motion.article>)}</div></div></section>
-      <section id="projects" className="section"><div className="wrap"><SectionHead kicker="Selected work" title="Live products I’ve helped build" copy="Production applications covering IoT, commerce, content management, cloud storage, and location-based services."/><div className="projects">{projects.slice(0,more?5:3).map((p,i)=><motion.article className="card project" key={p.name} {...reveal}><div className="project-visual"><span className="project-num">PROJECT / 0{i+1} — {p.mark}</span></div><div className="project-body"><h3>{p.name}</h3><p>{p.desc}</p><div className="tags">{p.tech.map(x=><span className="tag" key={x}>{x}</span>)}</div><div className="project-links"><a href={p.live} target="_blank" rel="noreferrer">Visit live site <ExternalLink size={14}/></a></div></div></motion.article>)}</div><button className="btn" style={{marginTop:24}} onClick={()=>setMore(!more)}>{more?"Show fewer projects":"View all five projects"}</button></div></section>
-      <section id="devops" className="section"><div className="wrap"><SectionHead kicker="Cloud & DevOps" title="From code to reliable production" copy="I deploy and maintain applications on DigitalOcean and AWS using Docker, Linux, Nginx, PM2, SSL, and automated delivery workflows. Jenkins, Terraform, Kubernetes, and monitoring are areas of intermediate hands-on practice—not claims of advanced expertise."/><div className="pipeline">{["GitHub","CI/CD","Build & Test","Docker","AWS / DO","Nginx","Production"].map((x,i)=><div style={{display:"contents"}} key={x}><motion.div className="card pipe-node" initial={{opacity:.45}} whileInView={{opacity:1,borderColor:"#397e6c"}} viewport={{once:true}} transition={{delay:i*.14}}>{x}</motion.div>{i<6&&<div className="pipe-arrow">→</div>}</div>)}</div><div className="devcards">{[[Cloud,"AWS","EC2 • S3 • RDS • IAM • VPC • CloudWatch"],[Box,"Containers","Docker • Docker Compose • Deployment"],[TestTube2,"Automation","GitHub Actions • Jenkins • Terraform • Ansible"],[Server,"Operations","Linux • Nginx • PM2 • SSL • Monitoring"]].map(([Icon,t,d])=><article className="card devcard" key={String(t)}><Icon size={21} color="#5eead4"/><h3>{t as string}</h3><p>{d as string}</p></article>)}</div></div></section>
-      <section className="section"><div className="wrap"><SectionHead kicker="Process" title="How I approach development"/><div className="steps">{[["01","Understand","Understand the requirement and problem before writing code."],["02","Build","Create clean, reusable frontend and backend components."],["03","Test & Debug","Find the root cause and improve reliability."],["04","Deploy & Improve","Ship, observe real usage and keep improving."]].map(([n,t,d])=><div className="step" key={n}><b>{n}</b><h3>{t}</h3><p>{d}</p></div>)}</div></div></section>
-      <section className="section"><div className="wrap"><SectionHead kicker="Growing deeper" title="Cloud-native engineering in practice" copy="Building on production experience through focused hands-on learning and AI-assisted development."/><div className="learning">{["AWS Architecture","Jenkins","Terraform","Kubernetes","Monitoring","Scalable Backends","Application Security","AI-assisted Development"].map(x=><div className="card learn" key={x}><Braces size={17} color="#5eead4"/>{x}</div>)}</div></div></section>
-      <section className="section"><div className="wrap"><SectionHead kicker="Education & credentials" title="A quantitative foundation for software engineering"/><div className="credentials"><article className="card credential"><div className="credential-year">2023 — 2025</div><h3>M.Sc. Statistics</h3><p>PSG College of Arts and Science, Coimbatore</p><strong>76.6%</strong></article><article className="card credential"><div className="credential-year">2020 — 2023</div><h3>B.Sc. Mathematics</h3><p>Sri Ramakrishna Mission Vidyalaya College of Arts and Science, Coimbatore</p><strong>80.2%</strong></article><article className="card credential"><div className="credential-year">Certification</div><h3>Full Stack Development</h3><p>Credential PT/GP/MERN/153/2025</p><strong>MERN</strong></article><article className="card credential"><div className="credential-year">Hands-on learning</div><h3>AWS Cloud Fundamentals</h3><p>EC2, S3, RDS, IAM, VPC, and CloudWatch</p><strong>AWS</strong></article></div></div></section>
-      <section className="section"><div className="wrap"><motion.div className="card github-box" {...reveal}><div><div className="eyebrow">Open source</div><h2>Code, experiments & projects</h2><p className="section-copy">Most of my learning happens by building. See the projects, experiments and ideas I’m currently working on.</p></div><a className="btn primary" href="https://github.com/iam-lakshmanan" target="_blank" rel="noreferrer"><Github size={17}/> Visit GitHub</a></motion.div></div></section>
-      <section id="contact" className="section"><div className="wrap"><SectionHead kicker="Contact" title="Let’s build something useful" copy="I’m open to full-stack, cloud, DevOps, and product engineering opportunities, as well as thoughtful freelance projects."/><div className="contact-grid"><div><p className="section-copy">Based in Coimbatore, Tamil Nadu. Available to discuss roles, collaborations, and production-focused development work.</p><div className="contact-list"><a className="contact-link" href="mailto:lakshmanan02731@gmail.com"><Mail size={18}/> lakshmanan02731@gmail.com</a><a className="contact-link" href="https://linkedin.com/in/iam-lakshmanan/" target="_blank" rel="noreferrer"><Linkedin size={18}/> linkedin.com/in/iam-lakshmanan</a><a className="contact-link" href="https://github.com/iam-lakshmanan" target="_blank" rel="noreferrer"><Github size={18}/> github.com/iam-lakshmanan</a></div></div><form className="card form" onSubmit={submit}><div className="field"><label htmlFor="name">NAME</label><input id="name" name="name" required minLength={2} autoComplete="name"/></div><div className="field"><label htmlFor="email">EMAIL</label><input id="email" name="email" type="email" required autoComplete="email"/></div><div className="field"><label htmlFor="message">MESSAGE</label><textarea id="message" name="message" required minLength={10}/></div><button className="btn primary" type="submit">Send message <ArrowRight size={16}/></button><div className="form-status" aria-live="polite">{sent}</div></form></div></div></section>
+    <a className="skip-link" href="#main-content">Skip to content</a>
+    <header ref={headerRef} className={`nav ${scrolled ? "scrolled" : ""}`}>
+      <motion.div className="reading-progress" style={{ scaleX: scrollYProgress }} aria-hidden="true" />
+      <div className="wrap navin">
+        <a href="#home" className="logo" aria-label="Home" onClick={event => scrollToSection(event, "home")}>&lt;L /&gt;</a>
+        <nav className="links" aria-label="Main navigation">{links()}</nav>
+        <div className="nav-controls">
+          <button className="motion-toggle" type="button" onClick={toggle} disabled={systemReduced}
+            aria-label={systemReduced ? "Animations disabled by your system preference" : enabled ? "Pause animations" : "Enable animations"}
+            title={systemReduced ? "Reduced motion is enabled on your device" : undefined}>
+            <span className="motion-bars" aria-hidden="true"><i /><i /><i /></span><span>Motion {enabled ? "on" : "off"}</span>
+          </button>
+          <button ref={menuRef} className="menu" type="button" aria-label={open ? "Close navigation" : "Open navigation"} aria-expanded={open} aria-controls="mobile-navigation" onClick={() => setOpen(value => !value)}>
+            {open ? <X /> : <Menu />}
+          </button>
+        </div>
+      </div>
+      <AnimatePresence initial={false}>
+        {open && <motion.nav id="mobile-navigation" className="mobile-nav" aria-label="Mobile navigation"
+          initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: enabled ? 0.22 : 0 }}>
+          <div className="mobile-nav-inner">{links(true)}</div>
+        </motion.nav>}
+      </AnimatePresence>
+    </header>
+
+    <main id="main-content" tabIndex={-1}>
+      <section ref={heroRef} id="home" tabIndex={-1} className="hero" data-running={heroInView && enabled}>
+        <div className="wrap hero-grid">
+          <div>
+            <Reveal eager><div className="status">Full Stack • Cloud • DevOps</div></Reveal>
+            <Reveal eager delay={0.07}><h1>Hi, I&apos;m <span>Lakshmanan.</span></h1></Reveal>
+            <Reveal eager delay={0.14}><div className="hero-sub">Full Stack Developer — AWS — Cloud-Native Engineering</div></Reveal>
+            <Reveal eager delay={0.21}><p className="hero-copy">I build and maintain production web applications, e-commerce platforms, IoT systems, and location-based products with React, Next.js, Node.js, PostgreSQL, Docker, AWS, and DigitalOcean.</p></Reveal>
+            <Reveal eager delay={0.28}><div className="actions"><a className="btn primary" href="#projects" onClick={event => scrollToSection(event, "projects")}>View my work</a><a className="btn" href="#contact" onClick={event => scrollToSection(event, "contact")}>Let&apos;s connect</a></div></Reveal>
+            <Reveal eager delay={0.35}><div className="socials">
+              <a className="iconbtn" href="https://github.com/iam-lakshmanan" target="_blank" rel="noreferrer" aria-label="GitHub"><Github size={18} /></a>
+              <a className="iconbtn" href="https://linkedin.com/in/iam-lakshmanan/" target="_blank" rel="noreferrer" aria-label="LinkedIn"><span className="linkedin-mark" aria-hidden="true">in</span></a>
+              <a className="iconbtn" href="mailto:lakshmanan02731@gmail.com" aria-label="Email"><Mail size={18} /></a>
+            </div></Reveal>
+          </div>
+          <Reveal className="terminal card" eager delay={0.2}>
+            <div className="term-top"><i /><i /><i /><span>development → production</span></div>
+            <div className="flow">
+              {["Product", "REST APIs", "Database", "Docker", "AWS / DigitalOcean", "Production"].map((label, index) => <div key={label} style={{ "--flow-delay": `${index * 0.65}s` } as CSSProperties}>
+                <div className="flow-row"><span>0{index + 1}</span>{label}<span className="flow-signal" aria-hidden="true" /></div>{index < 5 && <div className="flow-line" />}
+              </div>)}
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      <section id="about" tabIndex={-1} className="section"><div className="wrap">
+        <SectionHead kicker="About" title="Full stack, from interface to infrastructure" copy="I’m a Full Stack Developer in Coimbatore with hands-on experience across business websites, e-commerce products, IoT platforms, and taxi-booking systems. My work covers responsive interfaces, REST APIs, database design, authentication, payments, third-party integrations, and production deployment. I’m strengthening that foundation with AWS, Docker, Linux, CI/CD, Nginx, and practical cloud-native engineering." />
+        <div className="three">{aboutCards.map(({ Icon, title, copy }, index) => <Reveal className="card mini" key={title} delay={index * 0.07}><Icon size={23} /><h3>{title}</h3><p>{copy}</p></Reveal>)}</div>
+      </div></section>
+
+      <section id="skills" tabIndex={-1} className="section"><div className="wrap">
+        <SectionHead kicker="Toolkit" title="Technologies I work with" copy="A practical toolkit shaped by building across the browser, server, database, devices and deployment." />
+        <div className="skills">{Object.entries(skillGroups).map(([group, items], index) => <Reveal className="card skill" key={group} delay={(index % 3) * 0.06}><h3>{group}</h3><div className="tags">{items.map(item => <span className="tag" key={item}>{item}</span>)}</div></Reveal>)}</div>
+      </div></section>
+
+      <section id="experience" tabIndex={-1} className="section"><div className="wrap">
+        <SectionHead kicker="Experience" title="Production work and client delivery" copy="Current roles across product engineering, IoT, freelance delivery, and cloud deployment." />
+        <div className="experience-list">{experiences.map((item, index) => <Reveal className="card experience" key={item.company} delay={index * 0.07}>
+          <div className="role-head"><div><h3>{item.role}</h3><div className="company">{item.company}</div></div><span className="tag">{item.period}</span></div>
+          <p className="section-copy">{item.summary}</p><ul className="responsibilities">{item.points.map(point => <li key={point}>{point}</li>)}</ul>
+          <div className="tags">{item.tags.map(tag => <span className="tag" key={tag}>{tag}</span>)}</div>
+        </Reveal>)}</div>
+      </div></section>
+
+      <section id="projects" tabIndex={-1} className="section"><div className="wrap">
+        <div className="projects-heading"><SectionHead kicker="Selected work / 01—05" title="These are my key projects" copy="From connected devices to customer-facing products. Five projects, built for real use." /><Reveal><span className="project-count">05 <span>projects</span></span></Reveal></div>
+        <div className="projects">{projects.map((project, index) => <ProjectCard project={project} index={index} key={project.name} />)}</div>
+      </div></section>
+
+      <section id="devops" tabIndex={-1} className="section"><div className="wrap">
+        <SectionHead kicker="Cloud & DevOps" title="From code to reliable production" copy="I deploy and maintain applications on DigitalOcean and AWS using Docker, Linux, Nginx, PM2, SSL, and automated delivery workflows. I also have intermediate understanding and hands-on practice with Jenkins, Terraform, Kubernetes, and monitoring." />
+        <DeploymentPipeline />
+        <div className="devcards">{devCards.map(({ Icon, title, copy }, index) => <Reveal className="card devcard" key={title} delay={index * 0.06}><Icon size={21} /><h3>{title}</h3><p>{copy}</p></Reveal>)}</div>
+      </div></section>
+
+      <section className="section"><div className="wrap">
+        <SectionHead kicker="Process" title="How I approach development" />
+        <div className="steps">{[["01", "Understand", "Understand the requirement and problem before writing code."], ["02", "Build", "Create clean, reusable frontend and backend components."], ["03", "Test & Debug", "Find the root cause and improve reliability."], ["04", "Deploy & Improve", "Ship, observe real usage and keep improving."]].map(([number, title, copy], index) => <Reveal className="step" key={number} delay={index * 0.08}><b>{number}</b><h3>{title}</h3><p>{copy}</p></Reveal>)}</div>
+      </div></section>
+
+      <section className="section"><div className="wrap">
+        <SectionHead kicker="Growing deeper" title="Cloud-native engineering in practice" copy="Building on production experience through focused hands-on learning and AI-assisted development." />
+        <div className="learning">{["AWS Architecture", "Jenkins", "Terraform", "Kubernetes", "Monitoring", "Scalable Backends", "Application Security", "AI-assisted Development"].map((label, index) => <Reveal className="card learn" key={label} delay={(index % 4) * 0.05}><Braces size={17} /><span>{label}</span></Reveal>)}</div>
+      </div></section>
+
+      <section className="section"><div className="wrap">
+        <SectionHead kicker="Education & credentials" title="A quantitative foundation for software engineering" />
+        <div className="credentials">{credentials.map((credential, index) => <Reveal className="card credential" key={credential.title} delay={(index % 2) * 0.08}><div className="credential-year">{credential.label}</div><h3>{credential.title}</h3><p>{credential.copy}</p><strong>{credential.value}</strong></Reveal>)}</div>
+      </div></section>
+
+      <section className="section"><div className="wrap">
+        <Reveal className="card github-box"><div><div className="eyebrow">Open source</div><h2>Code, experiments & projects</h2><p className="section-copy">Most of my learning happens by building. See the projects, experiments and ideas I’m currently working on.</p></div><a className="btn primary" href="https://github.com/iam-lakshmanan" target="_blank" rel="noreferrer"><Github size={17} /> Visit GitHub</a></Reveal>
+      </div></section>
+
+      <section id="contact" tabIndex={-1} className="section"><div className="wrap">
+        <SectionHead kicker="Contact" title="Let’s build something useful" copy="I’m open to full-stack, cloud, DevOps, and product engineering opportunities, as well as thoughtful freelance projects." />
+        <div className="contact-grid">
+          <Reveal><p className="section-copy">Based in Coimbatore, Tamil Nadu. Available to discuss roles, collaborations, and production-focused development work.</p>
+            <div className="contact-list">
+              <a className="contact-link" href="mailto:lakshmanan02731@gmail.com"><Mail size={18} /> lakshmanan02731@gmail.com</a>
+              <a className="contact-link" href="https://linkedin.com/in/iam-lakshmanan/" target="_blank" rel="noreferrer"><Linkedin size={18} /> linkedin.com/in/iam-lakshmanan</a>
+              <a className="contact-link" href="https://github.com/iam-lakshmanan" target="_blank" rel="noreferrer"><Github size={18} /> github.com/iam-lakshmanan</a>
+            </div>
+          </Reveal>
+          <Reveal delay={0.08}><form className="card form" onSubmit={submit}>
+            <div className="field"><label htmlFor="name">NAME</label><input id="name" name="name" required minLength={2} autoComplete="name" /></div>
+            <div className="field"><label htmlFor="email">EMAIL</label><input id="email" name="email" type="email" required autoComplete="email" /></div>
+            <div className="field"><label htmlFor="message">MESSAGE</label><textarea id="message" name="message" required minLength={10} /></div>
+            <button className="btn primary" type="submit">Send message</button><div className="form-status" aria-live="polite">{sent}</div>
+          </form></Reveal>
+        </div>
+      </div></section>
     </main>
-    <footer className="footer"><div className="wrap footer-in"><span>© 2026 Lakshmanan. Built with Next.js & Tailwind CSS.</span><span>Built with curiosity and lots of debugging.</span></div></footer>
+    <footer className="footer"><Reveal className="wrap footer-in"><span>© 2026 Lakshmanan. Built with Next.js & Tailwind CSS.</span><span>Built with curiosity and lots of debugging.</span></Reveal></footer>
   </>;
 }
