@@ -24,6 +24,7 @@ const projects = [
   {name:"KGF Lottery Agency",desc:"Built a results and promotions platform with admin publishing tools and cloud file storage.",tech:["Next.js","Tailwind CSS","Node.js","DigitalOcean Spaces"],mark:"Content platform",live:"https://kgflottery.com"},
   {name:"PurpleDropTaxi",desc:"Built a taxi-booking PWA with location search, fare estimates, route maps, and Telegram enquiries.",tech:["Next.js","Google Maps APIs","Telegram Bot API","PWA","Hostinger"],mark:"Booking + location",live:"https://purpledroptaxi.com/"},
   {name:"Mangal and Mangal E-commerce",desc:"Collaborated on a full-stack store with product management, reviews, regional shipping, and an admin dashboard.",tech:["Next.js","Node.js","PostgreSQL","Tailwind CSS"],mark:"Team-built commerce",live:"https://stores.mangalandmangal.com/"},
+  {name:"Intercity One-Way Drop Taxis",desc:"Developed an intercity one-way drop taxi website, deployed with Docker and CI/CD pipelines to automate builds and deployments.",tech:["Docker","CI/CD"],mark:"Taxi service website",live:"https://intercitydroptaxis.com/"},
 ];
 const experiences = [
   {
@@ -243,8 +244,8 @@ function PortfolioContent() {
       </div></section>
 
       <section id="projects" tabIndex={-1} className="section"><div className="wrap">
-        <div className="projects-heading"><SectionHead kicker="Selected work / 01—05" title="These are my key projects" copy="From connected devices to customer-facing products. Five projects, built for real use." /><Reveal><span className="project-count">05 <span>projects</span></span></Reveal></div>
-        <div className="projects">{projects.map((project, index) => <ProjectCard project={project} index={index} key={project.name} />)}</div>
+        <div className="projects-heading"><SectionHead kicker={`Selected work / 01—${String(projects.length).padStart(2, "0")}`} title="These are my key projects" copy="From connected devices to customer-facing products. Projects built for real use." /><Reveal><span className="project-count">{String(projects.length).padStart(2, "0")} <span>projects</span></span></Reveal></div>
+        <div className="projects">{projects.map((project, index) => <ProjectCard project={project} index={index} total={projects.length} key={project.name} />)}</div>
       </div></section>
 
       <section id="devops" tabIndex={-1} className="section"><div className="wrap">
