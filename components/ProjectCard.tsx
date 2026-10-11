@@ -30,7 +30,7 @@ export function ProjectCard({ project, index, total }: { project: Project; index
         <ul className="project-stack" aria-label={`${project.name} technologies`}>
           {project.tech.map(tech => <li key={tech}>{tech}</li>)}
         </ul>
-        <a className="project-visit" href={project.live} target="_blank" rel="noreferrer" aria-label={`Visit ${project.name} (opens in a new tab)`}>
+        <a className="project-visit" href={project.live} target="_blank" rel="noreferrer" aria-label={`View project ${domain}: ${project.name} (opens in a new tab)`}>
           <span><span className="project-visit-label">View project</span><span className="project-domain">{domain}</span></span>
           <span className="project-launch"><ExternalLink size={17} aria-hidden="true" /></span>
         </a>

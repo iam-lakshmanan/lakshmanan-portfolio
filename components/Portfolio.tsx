@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type MouseEvent } from "react";
-import { AnimatePresence, motion, useInView, useScroll } from "framer-motion";
+import { AnimatePresence, motion, useInView, useMotionValueEvent, useScroll } from "framer-motion";
 import { Box, Braces, Cloud, Code2, Mail, Menu, Radio, Rocket, Server, TestTube2, X } from "lucide-react";
 import { ProjectCard } from "./ProjectCard";
 import { Reveal, SiteMotion, useSiteMotion } from "./SiteMotion";
+import { ExperienceTimeline, HeroArtwork, ScrollHeading } from "./ScrollVisuals";
 
 const Github = Code2;
 const Linkedin = Braces;
@@ -30,7 +31,7 @@ const experiences = [
   {
     role:"Full Stack Developer",
     company:"Magnic Technologies Pvt Ltd",
-    period:"Nov 2025 — Present",
+    period:"Nov 2025 - Present",
     summary:"Building and maintaining production web applications and IoT platforms across frontend, backend, databases, and deployment.",
     points:["Build React.js and Node.js applications backed by PostgreSQL","Connect live IoT device data to admin dashboards through MQTT","Implement authentication, authorization, and data encryption","Deploy with Docker and CI/CD, resolve production bugs, and improve reliability"],
     tags:["React.js","Node.js","PostgreSQL","MQTT","Docker","CI/CD"],
@@ -38,7 +39,7 @@ const experiences = [
   {
     role:"Freelance Full Stack Developer",
     company:"wexoraa",
-    period:"Jan 2026 — Present",
+    period:"Jan 2026 - Present",
     summary:"Delivered 7+ client projects spanning full-stack products, business websites, e-commerce, and taxi-booking experiences.",
     points:["Design REST APIs, database schemas, authentication flows, and payment integrations","Implement SEO, sitemaps, robots.txt, PWA features, and Google Maps integrations","Configure DigitalOcean servers, domains, deployments, and long-term maintenance","Deliver responsive interfaces and admin workflows for real business use"],
     tags:["Next.js","Express.js","DigitalOcean","Google Maps","PWA","SEO"],
@@ -46,7 +47,7 @@ const experiences = [
 ];
 
 function SectionHead({ kicker, title, copy }: { kicker: string; title: string; copy?: string }) {
-  return <Reveal className="section-heading"><div className="eyebrow">{kicker}</div><h2 className="section-title">{title}</h2>{copy && <p className="section-copy">{copy}</p>}</Reveal>;
+  return <div className="section-heading"><Reveal><div className="eyebrow">{kicker}</div></Reveal><ScrollHeading title={title} />{copy && <Reveal delay={0.06}><p className="section-copy">{copy}</p></Reveal>}</div>;
 }
 
 const aboutCards = [
@@ -61,8 +62,8 @@ const devCards = [
   { Icon: Server, title: "Operations", copy: "Linux • Nginx • PM2 • SSL • Monitoring" },
 ];
 const credentials = [
-  { label: "2023 — 2025", title: "M.Sc. Statistics", copy: "PSG College of Arts and Science, Coimbatore", value: "76.6%" },
-  { label: "2020 — 2023", title: "B.Sc. Mathematics", copy: "Sri Ramakrishna Mission Vidyalaya College of Arts and Science, Coimbatore", value: "80.2%" },
+  { label: "2023 - 2025", title: "M.Sc. Statistics", copy: "PSG College of Arts and Science, Coimbatore", value: "76.6%" },
+  { label: "2020 - 2023", title: "B.Sc. Mathematics", copy: "Sri Ramakrishna Mission Vidyalaya College of Arts and Science, Coimbatore", value: "80.2%" },
   { label: "Certification", title: "Full Stack Development", copy: "Credential PT/GP/MERN/153/2025", value: "MERN" },
   { label: "Hands-on learning", title: "AWS Cloud Fundamentals", copy: "EC2, S3, RDS, IAM, VPC, and CloudWatch", value: "AWS" },
 ];
@@ -94,14 +95,21 @@ function PortfolioContent() {
   const headerRef = useRef<HTMLElement>(null);
   const menuRef = useRef<HTMLButtonElement>(null);
   const heroRef = useRef<HTMLElement>(null);
-  const heroInView = useInView(heroRef, { amount: 0.1 });
   const { enabled, systemReduced, toggle } = useSiteMotion();
-  const { scrollYProgress } = useScroll();
+  const { scrollY, scrollYProgress } = useScroll();
+
+  useMotionValueEvent(scrollY, "change", value => {
+    setScrolled(value > 20);
+    const boundary = (headerRef.current?.querySelector(".navin")?.getBoundingClientRect().height ?? 76) + 24;
+    const current = [...nav].reverse().find(label => {
+      const section = document.getElementById(label.toLowerCase());
+      return section && section.getBoundingClientRect().top <= boundary;
+    });
+    if (current) setActive(current);
+  });
 
   useEffect(() => {
-    let frame = 0;
     const update = () => {
-      frame = 0;
       setScrolled(window.scrollY > 20);
       const boundary = (headerRef.current?.querySelector(".navin")?.getBoundingClientRect().height ?? 76) + 24;
       const current = [...nav].reverse().find(label => {
@@ -110,14 +118,10 @@ function PortfolioContent() {
       });
       if (current) setActive(current);
     };
-    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
     update();
-    window.addEventListener("scroll", schedule, { passive: true });
-    window.addEventListener("resize", schedule);
+    window.addEventListener("resize", update);
     return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", schedule);
-      window.removeEventListener("resize", schedule);
+      window.removeEventListener("resize", update);
     };
   }, []);
 
@@ -176,11 +180,11 @@ function PortfolioContent() {
     <header ref={headerRef} className={`nav ${scrolled ? "scrolled" : ""}`}>
       <motion.div className="reading-progress" style={{ scaleX: scrollYProgress }} aria-hidden="true" />
       <div className="wrap navin">
-        <a href="#home" className="logo" aria-label="Home" onClick={event => scrollToSection(event, "home")}>&lt;L /&gt;</a>
+        <a href="#home" className="logo" aria-label="<L /> Home" onClick={event => scrollToSection(event, "home")}><span aria-hidden="true">&lt;L /&gt;</span></a>
         <nav className="links" aria-label="Main navigation">{links()}</nav>
         <div className="nav-controls">
           <button className="motion-toggle" type="button" onClick={toggle} disabled={systemReduced}
-            aria-label={systemReduced ? "Animations disabled by your system preference" : enabled ? "Pause animations" : "Enable animations"}
+            aria-label={systemReduced ? "Motion off: animations disabled by your system preference" : enabled ? "Motion on: pause animations" : "Motion off: enable animations"}
             title={systemReduced ? "Reduced motion is enabled on your device" : undefined}>
             <span className="motion-bars" aria-hidden="true"><i /><i /><i /></span><span>Motion {enabled ? "on" : "off"}</span>
           </button>
@@ -191,7 +195,7 @@ function PortfolioContent() {
       </div>
       <AnimatePresence initial={false}>
         {open && <motion.nav id="mobile-navigation" className="mobile-nav" aria-label="Mobile navigation"
-          initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+          initial={{ y: -12, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -12, opacity: 0 }}
           transition={{ duration: enabled ? 0.22 : 0 }}>
           <div className="mobile-nav-inner">{links(true)}</div>
         </motion.nav>}
@@ -199,28 +203,15 @@ function PortfolioContent() {
     </header>
 
     <main id="main-content" tabIndex={-1}>
-      <section ref={heroRef} id="home" tabIndex={-1} className="hero" data-running={heroInView && enabled}>
+      <section ref={heroRef} id="home" tabIndex={-1} className="hero">
         <div className="wrap hero-grid">
-          <div>
+          <div className="hero-content">
             <Reveal eager><div className="status">Full Stack • Cloud • DevOps</div></Reveal>
             <Reveal eager delay={0.07}><h1>Hi, I&apos;m <span>Lakshmanan.</span></h1></Reveal>
-            <Reveal eager delay={0.14}><div className="hero-sub">Full Stack Developer — AWS — Cloud-Native Engineering</div></Reveal>
-            <Reveal eager delay={0.21}><p className="hero-copy">I build and maintain production web applications, e-commerce platforms, IoT systems, and location-based products with React, Next.js, Node.js, PostgreSQL, Docker, AWS, and DigitalOcean.</p></Reveal>
+            <Reveal eager delay={0.14}><p className="hero-copy">I build web applications, connected systems, and cloud infrastructure. From the first interface to production.</p></Reveal>
             <Reveal eager delay={0.28}><div className="actions"><a className="btn primary" href="#projects" onClick={event => scrollToSection(event, "projects")}>View my work</a><a className="btn" href="#contact" onClick={event => scrollToSection(event, "contact")}>Let&apos;s connect</a></div></Reveal>
-            <Reveal eager delay={0.35}><div className="socials">
-              <a className="iconbtn" href="https://github.com/iam-lakshmanan" target="_blank" rel="noreferrer" aria-label="GitHub"><Github size={18} /></a>
-              <a className="iconbtn" href="https://linkedin.com/in/iam-lakshmanan/" target="_blank" rel="noreferrer" aria-label="LinkedIn"><span className="linkedin-mark" aria-hidden="true">in</span></a>
-              <a className="iconbtn" href="mailto:lakshmanan02731@gmail.com" aria-label="Email"><Mail size={18} /></a>
-            </div></Reveal>
           </div>
-          <Reveal className="terminal card" eager delay={0.2}>
-            <div className="term-top"><i /><i /><i /><span>development → production</span></div>
-            <div className="flow">
-              {["Product", "REST APIs", "Database", "Docker", "AWS / DigitalOcean", "Production"].map((label, index) => <div key={label} style={{ "--flow-delay": `${index * 0.65}s` } as CSSProperties}>
-                <div className="flow-row"><span>0{index + 1}</span>{label}<span className="flow-signal" aria-hidden="true" /></div>{index < 5 && <div className="flow-line" />}
-              </div>)}
-            </div>
-          </Reveal>
+          <HeroArtwork target={heroRef} />
         </div>
       </section>
 
@@ -236,15 +227,15 @@ function PortfolioContent() {
 
       <section id="experience" tabIndex={-1} className="section"><div className="wrap">
         <SectionHead kicker="Experience" title="Production work and client delivery" copy="Current roles across product engineering, IoT, freelance delivery, and cloud deployment." />
-        <div className="experience-list">{experiences.map((item, index) => <Reveal className="card experience" key={item.company} delay={index * 0.07}>
+        <ExperienceTimeline>{experiences.map((item, index) => <Reveal className="card experience" key={item.company} delay={index * 0.07}>
           <div className="role-head"><div><h3>{item.role}</h3><div className="company">{item.company}</div></div><span className="tag">{item.period}</span></div>
           <p className="section-copy">{item.summary}</p><ul className="responsibilities">{item.points.map(point => <li key={point}>{point}</li>)}</ul>
           <div className="tags">{item.tags.map(tag => <span className="tag" key={tag}>{tag}</span>)}</div>
-        </Reveal>)}</div>
+        </Reveal>)}</ExperienceTimeline>
       </div></section>
 
       <section id="projects" tabIndex={-1} className="section"><div className="wrap">
-        <div className="projects-heading"><SectionHead kicker={`Selected work / 01—${String(projects.length).padStart(2, "0")}`} title="These are my key projects" copy="From connected devices to customer-facing products. Projects built for real use." /><Reveal><span className="project-count">{String(projects.length).padStart(2, "0")} <span>projects</span></span></Reveal></div>
+        <div className="projects-heading"><SectionHead kicker="Selected work" title="These are my key projects" copy="From connected devices to customer-facing products. Projects built for real use." /><Reveal><span className="project-count">{String(projects.length).padStart(2, "0")} <span>projects</span></span></Reveal></div>
         <div className="projects">{projects.map((project, index) => <ProjectCard project={project} index={index} total={projects.length} key={project.name} />)}</div>
       </div></section>
 

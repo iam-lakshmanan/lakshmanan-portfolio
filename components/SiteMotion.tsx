@@ -54,12 +54,13 @@ export function Reveal({ children, className, delay = 0, style, eager = false }:
   useEffect(() => {
     if (!enabled) {
       controls.stop();
-      controls.set({ opacity: 1, y: 0 });
+      controls.set({ opacity: 1, y: 0, scale: 1 });
     } else if (eager || inView) {
       void controls.start({
         opacity: 1,
         y: 0,
-        transition: { duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] },
+        scale: 1,
+        transition: { duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] },
       });
     }
     return () => controls.stop();
@@ -70,7 +71,7 @@ export function Reveal({ children, className, delay = 0, style, eager = false }:
       ref={ref}
       className={`motion-reveal ${className ?? ""}`}
       style={style}
-      initial={enabled ? { opacity: 0, y: 16 } : false}
+      initial={enabled ? { opacity: 0, y: 30, scale: 0.985 } : false}
       animate={controls}
     >
       {children}

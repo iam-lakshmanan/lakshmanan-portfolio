@@ -6,6 +6,7 @@ const geist = Geist({ variable: "--font-geist", subsets: ["latin"] });
 const mono = Geist_Mono({ variable: "--font-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  icons: { icon: "/favicon.svg" },
   title: "Lakshmanan A | Full Stack Developer, AWS & DevOps",
   description: "Full Stack Developer building production web, e-commerce, IoT, and location-based applications with React, Next.js, Node.js, PostgreSQL, AWS, DigitalOcean, Docker, and DevOps technologies.",
   openGraph: {
