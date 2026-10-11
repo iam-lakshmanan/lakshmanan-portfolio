@@ -9,13 +9,12 @@ import { useSiteMotion } from "./SiteMotion";
 export const HeroArtwork = memo(function HeroArtwork({ target }: { target: RefObject<HTMLElement | null> }) {
   const { enabled } = useSiteMotion();
   const { scrollYProgress } = useScroll({ target, offset: ["start start", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [0, 96]);
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
-  const rotate = useTransform(scrollYProgress, [0, 1], [0, 4]);
-  return <div className="hero-artwork">
-    <motion.div className="hero-artwork-surface scroll-art" style={enabled ? { y, scale, rotate } : { y: 0, scale: 1, rotate: 0 }}>
-      <Image src="/images/hero-system-sculpture.png" alt="Sculptural graphite frames connected by a teal glass ribbon, representing connected software systems."
-        width={1254} height={1254} sizes="(max-width: 560px) calc(100vw - 32px), (max-width: 850px) 480px, (max-width: 1240px) 48vw, 584px" priority fetchPriority="high" className="hero-image" />
+  const y = useTransform(scrollYProgress, [0, 1], [0, 64]);
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.04]);
+  return <div className="hero-artwork" aria-hidden="true">
+    <motion.div className="hero-artwork-surface scroll-art" style={enabled ? { y, scale } : { y: 0, scale: 1 }}>
+      <Image src="/images/hero-developer-workspace.png" alt=""
+        fill sizes="100vw" priority fetchPriority="high" className="hero-image" />
     </motion.div>
   </div>;
 });

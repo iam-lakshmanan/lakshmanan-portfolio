@@ -204,6 +204,7 @@ function PortfolioContent() {
 
     <main id="main-content" tabIndex={-1}>
       <section ref={heroRef} id="home" tabIndex={-1} className="hero">
+        <HeroArtwork target={heroRef} />
         <div className="wrap hero-grid">
           <div className="hero-content">
             <Reveal eager><div className="status">Full Stack • Cloud • DevOps</div></Reveal>
@@ -211,7 +212,6 @@ function PortfolioContent() {
             <Reveal eager delay={0.14}><p className="hero-copy">I build web applications, connected systems, and cloud infrastructure. From the first interface to production.</p></Reveal>
             <Reveal eager delay={0.28}><div className="actions"><a className="btn primary" href="#projects" onClick={event => scrollToSection(event, "projects")}>View my work</a><a className="btn" href="#contact" onClick={event => scrollToSection(event, "contact")}>Let&apos;s connect</a></div></Reveal>
           </div>
-          <HeroArtwork target={heroRef} />
         </div>
       </section>
 
