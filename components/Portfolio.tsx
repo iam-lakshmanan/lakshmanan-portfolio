@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import { AnimatePresence, motion, useInView, useMotionValueEvent, useScroll } from "framer-motion";
-import { ArrowUpRight, Box, Braces, Cloud, Code2, Mail, Menu, Phone, Radio, Rocket, Server, TestTube2, X } from "lucide-react";
+import { ArrowUpRight, BadgeCheck, Box, Braces, Cloud, Code2, Mail, Menu, Phone, Radio, Rocket, Server, TestTube2, X } from "lucide-react";
 import { ProjectCard } from "./ProjectCard";
 import { Reveal, SiteMotion, useSiteMotion } from "./SiteMotion";
 import { ExperienceTimeline, HeroArtwork, ScrollHeading } from "./ScrollVisuals";
@@ -17,7 +17,7 @@ const contactMethods = [
   { name: "GitHub", value: "github.com/iam-lakshmanan", href: "https://github.com/iam-lakshmanan", action: "Explore my code", icon: Github, tone: "amber", external: true },
 ];
 
-const nav = ["Home","About","Skills","Experience","Projects","DevOps","Contact"];
+const nav = ["Home","About","Skills","Experience","Projects","DevOps","Certifications","Contact"];
 const skillGroups = {
   Frontend:["React.js","Next.js","JavaScript","TypeScript","Tailwind CSS","Responsive UI","PWA"],
   Backend:["Node.js","Express.js","REST APIs","Authentication","JWT","API Integration"],
@@ -68,11 +68,15 @@ const devCards = [
   { Icon: TestTube2, title: "Automation", copy: "GitHub Actions • Jenkins • Terraform • Ansible" },
   { Icon: Server, title: "Operations", copy: "Linux • Nginx • PM2 • SSL • Monitoring" },
 ];
-const credentials = [
+const education = [
   { label: "2023 - 2025", title: "M.Sc. Statistics", copy: "PSG College of Arts and Science, Coimbatore", value: "76.6%" },
   { label: "2020 - 2023", title: "B.Sc. Mathematics", copy: "Sri Ramakrishna Mission Vidyalaya College of Arts and Science, Coimbatore", value: "80.2%" },
-  { label: "Certification", title: "Full Stack Development", copy: "Credential PT/GP/MERN/153/2025", value: "MERN" },
-  { label: "Hands-on learning", title: "AWS Cloud Fundamentals", copy: "EC2, S3, RDS, IAM, VPC, and CloudWatch", value: "AWS" },
+];
+const certifications = [
+  { title: "Certified Full Stack Development", type: "Certification", issuer: null, credentialId: "PT/GP/MERN/153/2025", completed: null, Icon: Code2 },
+  { title: "DevOps Engineering", type: "Certification", issuer: "Revamp Academy", credentialId: null, completed: "July 2026", Icon: Server },
+  { title: "AWS Cloud Computing Training", type: "Training", issuer: "Revamp Academy", credentialId: null, completed: "July 2026", Icon: Cloud },
+  { title: "Infrastructure Automation & Monitoring Training", type: "Training", issuer: "Revamp Academy", credentialId: null, completed: "July 2026", Icon: Box },
 ];
 
 function DeploymentPipeline() {
@@ -139,7 +143,7 @@ function PortfolioContent() {
     const onOutside = (event: PointerEvent) => {
       if (event.target instanceof Node && !headerRef.current?.contains(event.target)) setOpen(false);
     };
-    const onResize = () => { if (window.innerWidth > 850) setOpen(false); };
+    const onResize = () => { if (window.innerWidth > 1100) setOpen(false); };
     document.addEventListener("keydown", onKey);
     document.addEventListener("pointerdown", onOutside);
     window.addEventListener("resize", onResize);
@@ -253,8 +257,23 @@ function PortfolioContent() {
       </div></section>
 
       <section className="section"><div className="wrap">
-        <SectionHead kicker="Education & credentials" title="A quantitative foundation for software engineering" />
-        <div className="credentials">{credentials.map((credential, index) => <Reveal className="card credential" key={credential.title} delay={(index % 2) * 0.08}><div className="credential-year">{credential.label}</div><h3>{credential.title}</h3><p>{credential.copy}</p><strong>{credential.value}</strong></Reveal>)}</div>
+        <SectionHead kicker="Education" title="A quantitative foundation for software engineering" />
+        <div className="credentials">{education.map((credential, index) => <Reveal className="card credential" key={credential.title} delay={(index % 2) * 0.08}><div className="credential-year">{credential.label}</div><h3>{credential.title}</h3><p>{credential.copy}</p><strong>{credential.value}</strong></Reveal>)}</div>
+      </div></section>
+
+      <section id="certifications" tabIndex={-1} className="section"><div className="wrap">
+        <SectionHead kicker="Certifications" title="Certifications & professional training" copy="Structured learning in full-stack development, DevOps, cloud computing, and infrastructure automation." />
+        <div className="credentials">{certifications.map(({ title, type, issuer, credentialId, completed, Icon }, index) => (
+          <Reveal className="card credential certification-card" key={title} delay={(index % 2) * 0.08}>
+            <div className="certification-top"><span className="certification-icon"><Icon size={24} aria-hidden="true" /></span><span className="certification-type">{type}</span></div>
+            <h3>{title}</h3>
+            {issuer && <p className="certification-issuer">{issuer}</p>}
+            <div className="certification-meta">
+              {credentialId && <><span>Credential ID</span><strong>{credentialId}</strong></>}
+              {completed && <span className="certification-completed"><BadgeCheck size={17} aria-hidden="true" />Completed <time dateTime="2026-07">{completed}</time></span>}
+            </div>
+          </Reveal>
+        ))}</div>
       </div></section>
 
       <section className="section"><div className="wrap">
