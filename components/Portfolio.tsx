@@ -1,14 +1,21 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import { AnimatePresence, motion, useInView, useMotionValueEvent, useScroll } from "framer-motion";
-import { Box, Braces, Cloud, Code2, Mail, Menu, Radio, Rocket, Server, TestTube2, X } from "lucide-react";
+import { ArrowUpRight, Box, Braces, Cloud, Code2, Mail, Menu, Phone, Radio, Rocket, Server, TestTube2, X } from "lucide-react";
 import { ProjectCard } from "./ProjectCard";
 import { Reveal, SiteMotion, useSiteMotion } from "./SiteMotion";
 import { ExperienceTimeline, HeroArtwork, ScrollHeading } from "./ScrollVisuals";
 
 const Github = Code2;
 const Linkedin = Braces;
+
+const contactMethods = [
+  { name: "Phone", value: "9384272748", href: "tel:9384272748", action: "Let’s talk", icon: Phone, tone: "mint", external: false },
+  { name: "Email", value: "lakshmanan02731@gmail.com", href: "mailto:lakshmanan02731@gmail.com", action: "Send an email", icon: Mail, tone: "blue", external: false },
+  { name: "LinkedIn", value: "linkedin.com/in/iam-lakshmanan", href: "https://linkedin.com/in/iam-lakshmanan/", action: "Let’s connect", icon: Linkedin, tone: "violet", external: true },
+  { name: "GitHub", value: "github.com/iam-lakshmanan", href: "https://github.com/iam-lakshmanan", action: "Explore my code", icon: Github, tone: "amber", external: true },
+];
 
 const nav = ["Home","About","Skills","Experience","Projects","DevOps","Contact"];
 const skillGroups = {
@@ -91,7 +98,6 @@ function PortfolioContent() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("Home");
-  const [sent, setSent] = useState("");
   const headerRef = useRef<HTMLElement>(null);
   const menuRef = useRef<HTMLButtonElement>(null);
   const heroRef = useRef<HTMLElement>(null);
@@ -157,15 +163,6 @@ function PortfolioContent() {
     window.history.replaceState(null, "", `#${sectionId}`);
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    const subject = encodeURIComponent(`Portfolio enquiry from ${form.get("name")}`);
-    const body = encodeURIComponent(`${form.get("message")}\n\nFrom: ${form.get("name")} (${form.get("email")})`);
-    setSent("Your email app will open with this message. Send it there to complete your enquiry.");
-    window.location.href = `mailto:lakshmanan02731@gmail.com?subject=${subject}&body=${body}`;
-  }
-
   const links = (mobile = false) => nav.map(label => (
     <a key={label} href={`#${label.toLowerCase()}`} className={active === label ? "active" : ""}
       aria-current={active === label ? "location" : undefined}
@@ -180,7 +177,7 @@ function PortfolioContent() {
     <header ref={headerRef} className={`nav ${scrolled ? "scrolled" : ""}`}>
       <motion.div className="reading-progress" style={{ scaleX: scrollYProgress }} aria-hidden="true" />
       <div className="wrap navin">
-        <a href="#home" className="logo" aria-label="<L /> Home" onClick={event => scrollToSection(event, "home")}><span aria-hidden="true">&lt;L /&gt;</span></a>
+        <a href="#home" className="logo" aria-label="</Lakshmanan> Home" onClick={event => scrollToSection(event, "home")}><span aria-hidden="true">&lt;/Lakshmanan&gt;</span></a>
         <nav className="links" aria-label="Main navigation">{links()}</nav>
         <div className="nav-controls">
           <button className="motion-toggle" type="button" onClick={toggle} disabled={systemReduced}
@@ -264,22 +261,22 @@ function PortfolioContent() {
         <Reveal className="card github-box"><div><div className="eyebrow">Open source</div><h2>Code, experiments & projects</h2><p className="section-copy">Most of my learning happens by building. See the projects, experiments and ideas I’m currently working on.</p></div><a className="btn primary" href="https://github.com/iam-lakshmanan" target="_blank" rel="noreferrer"><Github size={17} /> Visit GitHub</a></Reveal>
       </div></section>
 
-      <section id="contact" tabIndex={-1} className="section"><div className="wrap">
+      <section id="contact" tabIndex={-1} className="section contact-section"><div className="wrap">
         <SectionHead kicker="Contact" title="Let’s build something useful" copy="I’m open to full-stack, cloud, DevOps, and product engineering opportunities, as well as thoughtful freelance projects." />
-        <div className="contact-grid">
-          <Reveal><p className="section-copy">Based in Coimbatore, Tamil Nadu. Available to discuss roles, collaborations, and production-focused development work.</p>
-            <div className="contact-list">
-              <a className="contact-link" href="mailto:lakshmanan02731@gmail.com"><Mail size={18} /> lakshmanan02731@gmail.com</a>
-              <a className="contact-link" href="https://linkedin.com/in/iam-lakshmanan/" target="_blank" rel="noreferrer"><Linkedin size={18} /> linkedin.com/in/iam-lakshmanan</a>
-              <a className="contact-link" href="https://github.com/iam-lakshmanan" target="_blank" rel="noreferrer"><Github size={18} /> github.com/iam-lakshmanan</a>
-            </div>
-          </Reveal>
-          <Reveal delay={0.08}><form className="card form" onSubmit={submit}>
-            <div className="field"><label htmlFor="name">NAME</label><input id="name" name="name" required minLength={2} autoComplete="name" /></div>
-            <div className="field"><label htmlFor="email">EMAIL</label><input id="email" name="email" type="email" required autoComplete="email" /></div>
-            <div className="field"><label htmlFor="message">MESSAGE</label><textarea id="message" name="message" required minLength={10} /></div>
-            <button className="btn primary" type="submit">Send message</button><div className="form-status" aria-live="polite">{sent}</div>
-          </form></Reveal>
+        <div className="contact-details">
+          <Reveal><p className="section-copy">Based in Coimbatore, Tamil Nadu. Available to discuss roles, collaborations, and production-focused development work.</p></Reveal>
+          <div className="contact-list">
+            {contactMethods.map(({ name, value, href, action, icon: Icon, tone, external }, index) => (
+              <Reveal key={name} delay={index * 0.06}>
+                <a className={`contact-link contact-${tone}`} href={href} target={external ? "_blank" : undefined} rel={external ? "noreferrer" : undefined}>
+                  <span className="contact-card-top"><span className="contact-icon" aria-hidden="true">{name === "LinkedIn" ? <span className="linkedin-mark">in</span> : <Icon size={22} />}</span><span className="contact-label">{name}</span><ArrowUpRight className="contact-arrow" size={20} aria-hidden="true" /></span>
+                  <span className="contact-value">{value}</span>
+                  <span className="contact-action">{action}<span aria-hidden="true"> →</span></span>
+                  {external && <span className="contact-sr-only"> (opens in a new tab)</span>}
+                </a>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </div></section>
     </main>
