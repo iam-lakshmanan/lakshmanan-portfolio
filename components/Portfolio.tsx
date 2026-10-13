@@ -281,21 +281,28 @@ function PortfolioContent() {
       </div></section>
 
       <section id="contact" tabIndex={-1} className="section contact-section"><div className="wrap">
-        <SectionHead kicker="Contact" title="Let’s build something useful" copy="I’m open to full-stack, cloud, DevOps, and product engineering opportunities, as well as thoughtful freelance projects." />
+        <div className="contact-layout">
+        <Reveal className="contact-intro">
+          <div className="contact-intro-top"><span className="eyebrow">Contact / Let’s connect</span><ArrowUpRight size={28} aria-hidden="true" /></div>
+          <h2>Your next idea.<br /><span>Let’s build it.</span></h2>
+          <p>I’m open to full-stack, cloud, DevOps, and product engineering opportunities, as well as thoughtful freelance projects.</p>
+          <div className="contact-intro-footer"><span className="contact-availability"><i aria-hidden="true" />Open to opportunities</span><span>Coimbatore · Bangalore · Chennai</span><span className="contact-signature" aria-hidden="true">&lt;/Lakshmanan&gt;</span></div>
+        </Reveal>
         <div className="contact-details">
-          <Reveal><p className="section-copy">Based in Coimbatore, Tamil Nadu. Available to discuss roles, collaborations, and production-focused development work.</p></Reveal>
+          <Reveal className="contact-directory-heading"><span>Choose your channel</span><span>01 — 04</span></Reveal>
           <div className="contact-list">
             {contactMethods.map(({ name, value, href, action, icon: Icon, tone, external }, index) => (
               <Reveal key={name} delay={index * 0.06}>
                 <a className={`contact-link contact-${tone}`} href={href} target={external ? "_blank" : undefined} rel={external ? "noreferrer" : undefined}>
-                  <span className="contact-card-top"><span className="contact-icon" aria-hidden="true">{name === "LinkedIn" ? <span className="linkedin-mark">in</span> : <Icon size={22} />}</span><span className="contact-label">{name}</span><ArrowUpRight className="contact-arrow" size={20} aria-hidden="true" /></span>
-                  <span className="contact-value">{value}</span>
-                  <span className="contact-action">{action}<span aria-hidden="true"> →</span></span>
+                  <span className="contact-channel"><span className="contact-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><span className="contact-icon" aria-hidden="true">{name === "LinkedIn" ? <span className="linkedin-mark">in</span> : <Icon size={22} />}</span></span>
+                  <span className="contact-row-copy"><span className="contact-label">{name}</span><span className="contact-value">{value}</span><span className="contact-action">{action}</span></span>
+                  <ArrowUpRight className="contact-arrow" size={44} aria-hidden="true" />
                   {external && <span className="contact-sr-only"> (opens in a new tab)</span>}
                 </a>
               </Reveal>
             ))}
           </div>
+        </div>
         </div>
       </div></section>
     </main>
