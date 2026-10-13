@@ -45,9 +45,9 @@ const experiences = [
   },
   {
     role:"Freelance Full Stack Developer",
-    company:"wexoraa",
-    period:"Jan 2026 - Present",
-    summary:"Delivered 7+ client projects spanning full-stack products, business websites, e-commerce, and taxi-booking experiences.",
+    company:"Independent Freelance Projects",
+    period:"Jan 2026 - Oct 2026",
+    summary:"Delivered 8+ client projects spanning full-stack products, business websites, e-commerce, and taxi-booking experiences.",
     points:["Design REST APIs, database schemas, authentication flows, and payment integrations","Implement SEO, sitemaps, robots.txt, PWA features, and Google Maps integrations","Configure DigitalOcean servers, domains, deployments, and long-term maintenance","Deliver responsive interfaces and admin workflows for real business use"],
     tags:["Next.js","Express.js","DigitalOcean","Google Maps","PWA","SEO"],
   },
@@ -58,7 +58,7 @@ function SectionHead({ kicker, title, copy }: { kicker: string; title: string; c
 }
 
 const aboutCards = [
-  { Icon: Code2, title: "7+ delivered projects", copy: "Client and production work across commerce, business, and booking platforms." },
+  { Icon: Code2, title: "8+ delivered projects", copy: "Client and production work across commerce, business, and booking platforms." },
   { Icon: Radio, title: "Real-time systems", copy: "MQTT-powered IoT data, admin dashboards, and location-based experiences." },
   { Icon: Rocket, title: "Production ownership", copy: "Docker, DigitalOcean, AWS, Nginx, PM2, domains, SSL, and maintenance." },
 ];
@@ -217,7 +217,7 @@ function PortfolioContent() {
       </section>
 
       <section id="about" tabIndex={-1} className="section"><div className="wrap">
-        <SectionHead kicker="About" title="Full stack, from interface to infrastructure" copy="I’m a Full Stack Developer in Coimbatore with hands-on experience across business websites, e-commerce products, IoT platforms, and taxi-booking systems. My work covers responsive interfaces, REST APIs, database design, authentication, payments, third-party integrations, and production deployment. I’m strengthening that foundation with AWS, Docker, Linux, CI/CD, Nginx, and practical cloud-native engineering." />
+        <SectionHead kicker="About" title="Full stack, from interface to infrastructure" copy="I’m a Full Stack Developer in Coimbatore with hands-on experience across business websites, e-commerce products, IoT platforms, and taxi-booking systems. My work covers responsive interfaces, REST APIs, database design, authentication, payments, third-party integrations, and production deployment. I’m strengthening that foundation with AWS, Docker, Linux, CI/CD, Nginx, and practical cloud-native engineering. I’m also ready to work with LLM APIs and integrate AI-powered features into web applications." />
         <div className="three">{aboutCards.map(({ Icon, title, copy }, index) => <Reveal className="card mini" key={title} delay={index * 0.07}><Icon size={23} /><h3>{title}</h3><p>{copy}</p></Reveal>)}</div>
       </div></section>
 
@@ -285,7 +285,7 @@ function PortfolioContent() {
         <Reveal className="contact-intro">
           <div className="contact-intro-top"><span className="eyebrow">Contact / Let’s connect</span><ArrowUpRight size={28} aria-hidden="true" /></div>
           <h2>Your next idea.<br /><span>Let’s build it.</span></h2>
-          <p>I’m open to full-stack, cloud, DevOps, and product engineering opportunities, as well as thoughtful freelance projects.</p>
+          <p>I’m open to full-stack, cloud, DevOps, and product engineering opportunities, as well as thoughtful freelance projects. I’m also ready to work with LLM APIs and build AI-powered features.</p>
           <div className="contact-intro-footer"><span className="contact-availability"><i aria-hidden="true" />Open to opportunities</span><span>Coimbatore · Bangalore · Chennai</span><span className="contact-signature" aria-hidden="true">&lt;/Lakshmanan&gt;</span></div>
         </Reveal>
         <div className="contact-details">
